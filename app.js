@@ -1,29 +1,33 @@
-const player = (name) => {
+const player = (name, playerDisplayPosition) => {
 	let score = 0
 
-	const getName = () => name
+	let namePlayer = name
+
+	const getName = () => namePlayer
 	const getScore = () => score
 
-	return { getName, getScore, score }
-}
+	const playerNameDisplayPosition = () => {
+		const p1Display = document.querySelector('.player1DisplayName')
+		const p2Display = document.querySelector('.player2DisplayName')
 
-const displayNamePlayer1 = (() => {
-	const playerNameBtn = document.querySelector('.player1Name')
-	const formPlayer1 = document.querySelector('.formPlayer1')
-	const player1DisplayName = document.querySelector('.player1DisplayName')
-
-	let player1 = player('Player1')
-	player1DisplayName.textContent = player1.getName()
-
-	const changePlayerName = () => {
-		player1.getName = () => formPlayer1.elements[0].value
-		player1DisplayName.textContent = player1.getName()
+		if (playerDisplayPosition === 1) {
+			p1Display.textContent = namePlayer
+		} else if (playerDisplayPosition === 2) {
+			p2Display.textContent = namePlayer
+		} else {
+		}
 	}
 
-	playerNameBtn.addEventListener('click', changePlayerName)
+	playerNameDisplayPosition()
 
-	return { player1 }
-})()
+	const formChangePlayer = document.querySelector('.form-Change-Player')
+	const changePlayerName = () => {
+		namePlayer = formChangePlayer.elements[0].value
+		playerNameDisplayPosition()
+	}
+
+	return { getName, getScore, score, changePlayerName }
+}
 
 const gameBoard = (() => {
 	const _gameBoard = [null, 'x', 'o', 'x', 'o', 'x', 'o', 'x', 'o', 'x']
@@ -40,9 +44,61 @@ const gameBoard = (() => {
 		}
 	}
 
-	// Display player name
+	// Create Player 1 and 2
+	const player1 = player('Player1', 1)
+	const player2 = player('Player2', 2)
 
-	const displayNamePlayer2 = () => {
+	// Display player name
+	const playerNameBtn = document.querySelector('.change-name')
+	const blurDiv = document.querySelector('.blur-background')
+	const formChangePlayer = document.querySelector('.form-Change-Player')
+
+	playerNameBtn.addEventListener('click', () => {
+		blurDiv.classList.add('display-contents')
+		formChangePlayer.classList.add('display-contents')
+	})
+
+	const sendPlayerNameChange = document.querySelector('.send')
+	sendPlayerNameChange.addEventListener('click', () => {
+		let selectedRadioBtn = document.querySelector(
+			'input[type="radio"][name = "player"]:checked'
+		)
+		if (selectedRadioBtn.value === '1') {
+			gameBoard.player1.changePlayerName()
+		} else if (selectedRadioBtn.value === '2') {
+			gameBoard.player2.changePlayerName()
+		}
+
+		blurDiv.classList.remove('display-contents')
+		formChangePlayer.classList.remove('display-contents')
+	})
+
+	displayGameboard()
+
+	const gameFlow = () => {}
+
+	return { squareArray, player1, player2 }
+})()
+
+/* const displayNamePlayer1 = (() => {
+	const playerNameBtn = document.querySelector('.player1Name')
+	const formPlayer1 = document.querySelector('.formPlayer1')
+	const player1DisplayName = document.querySelector('.player1DisplayName')
+
+	let player1 = player('Player1')
+	player1DisplayName.textContent = player1.getName()
+
+	const changePlayerName = () => {
+		player1.getName = () => formPlayer1.elements[0].value
+		player1DisplayName.textContent = player1.getName()
+	}
+
+	playerNameBtn.addEventListener('click', changePlayerName)
+
+	return { player1 }
+})() */
+
+/* const displayNamePlayer2 = () => {
 		const playerNameBtn = document.querySelector('.player2Name')
 		const formPlayer2 = document.querySelector('.formPlayer2')
 		const player2DisplayName = document.querySelector('.player2DisplayName')
@@ -58,12 +114,4 @@ const gameBoard = (() => {
 		playerNameBtn.addEventListener('click', changePlayerName)
 
 		return { player2 }
-	}
-
-	displayGameboard()
-	displayNamePlayer2()
-
-	const gameFlow = () => {}
-
-	return { squareArray }
-})()
+	} */

@@ -17,10 +17,6 @@
 		<main>
 			<div class="player1">
 				<div class="player1DisplayName"></div>
-				<form action="get" class="formPlayer1">
-					<input type="text" placeholder="Enter name" class="inputName" />
-					<button type="button" class="player1Name">New player</button>
-				</form>
 			</div>
 
 			<div class="board">
@@ -37,15 +33,30 @@
 
 			<div class="player2">
 				<div class="player2DisplayName"></div>
-				<form action="get" class="formPlayer2">
-					<input type="text" placeholder="Enter name" class="inputName" />
-					<button type="button" class="player2Name">New player</button>
-				</form>
 			</div>
+
+			<button type="button" class="change-name">Change name</button>
 		</main>
 
 		<footer>
 			<div class="footer">©What a man</div>
 		</footer>
+
+		<div class="blur-background">
+			<form action="get" class="form-Change-Player">
+				<input type="text" placeholder="Enter name" class="inputName" />
+				<fieldset>
+					<div>
+						<input type="radio" name="player" id="player1" value="1" checked />
+						<label for="player1">Player1</label>
+					</div>
+					<div>
+						<input type="radio" name="player" id="player2" value="2" />
+						<label for="player2">Player2</label>
+					</div>
+				</fieldset>
+				<button type="button" class="send">Send</button>
+			</form>
+		</div>
 	</body>
 </html>
