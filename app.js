@@ -7,12 +7,12 @@ const gameBoard = (() => {
 	const squareArray = [null, ...square]
 
 	const player = (name, playerDisplayPosition, mark) => {
-		const score = 0
+		// eslint-disable-next-line prefer-const
+		let score = 0
 		let namePlayer = name
 
 		const getMark = () => mark
 		const getName = () => namePlayer
-		const getScore = () => score
 		const playerNameDisplayPosition = () => {
 			const p1Display = document.querySelector('.player1DisplayName')
 			const p2Display = document.querySelector('.player2DisplayName')
@@ -36,7 +36,7 @@ const gameBoard = (() => {
 		return {
 			getMark,
 			getName,
-			getScore,
+			score,
 			playerNameDisplayPosition,
 			changePlayerName,
 		}
@@ -81,13 +81,14 @@ const gameBoard = (() => {
 		})
 	})()
 
-	const displayScore = (() => {
+	const displayScore = () => {
 		const scoreP1 = document.querySelector('.scoreP1')
 		const scoreP2 = document.querySelector('.scoreP2')
 
-		scoreP1.textContent = player1.getScore()
-		scoreP2.textContent = player2.getScore()
-	})()
+		scoreP1.textContent = player1.score
+		scoreP2.textContent = player2.score
+	}
+	displayScore()
 
 	const displayMark = (() => {
 		const markP1 = document.querySelector('.markP1')
@@ -155,16 +156,32 @@ const gameBoard = (() => {
 			[3, 5, 7].every((x) => _gameBoard[x] === 'O')
 
 		if (winnerX === true) {
-			console.log('winner X')
+			if (player1.getMark() === 'X') {
+				player1.score += 1
+				displayScore()
+			} else {
+				player2.score += 1
+				displayScore()
+			}
 		} else if (winnerO === true) {
-			console.log('winner O')
+			if (player1.getMark() === 'O') {
+				player1.score += 1
+				displayScore()
+			} else {
+				player2.score += 1
+				displayScore()
+			}
 		}
-	}
 
+		return { winnerX, winnerO }
+	}
 	const gameFlow = (() => {
-		playerTurn()
-		winner()
+		if (!winner().winnerX === true) {
+			playerTurn()
+		} else {
+			console.log('nah')
+		}
 	})()
 
-	return { _gameBoard }
+	return { _gameBoard, player1, player2, winner }
 })()
