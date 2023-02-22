@@ -127,14 +127,44 @@ const gameBoard = (() => {
 						_gameBoard[i] = player2.getMark()
 					}
 					displayGameboard()
+					winner()
 				})
 			}
 		})
 	}
 
+	const winner = () => {
+		const winnerX =
+			[1, 2, 3].every((x) => _gameBoard[x] === 'X') ||
+			[4, 5, 6].every((x) => _gameBoard[x] === 'X') ||
+			[7, 8, 9].every((x) => _gameBoard[x] === 'X') ||
+			[1, 4, 7].every((x) => _gameBoard[x] === 'X') ||
+			[2, 5, 8].every((x) => _gameBoard[x] === 'X') ||
+			[3, 6, 9].every((x) => _gameBoard[x] === 'X') ||
+			[1, 5, 9].every((x) => _gameBoard[x] === 'X') ||
+			[3, 5, 7].every((x) => _gameBoard[x] === 'X')
+
+		const winnerO =
+			[1, 2, 3].every((x) => _gameBoard[x] === 'O') ||
+			[4, 5, 6].every((x) => _gameBoard[x] === 'O') ||
+			[7, 8, 9].every((x) => _gameBoard[x] === 'O') ||
+			[1, 4, 7].every((x) => _gameBoard[x] === 'O') ||
+			[2, 5, 8].every((x) => _gameBoard[x] === 'O') ||
+			[3, 6, 9].every((x) => _gameBoard[x] === 'O') ||
+			[1, 5, 9].every((x) => _gameBoard[x] === 'O') ||
+			[3, 5, 7].every((x) => _gameBoard[x] === 'O')
+
+		if (winnerX === true) {
+			console.log('winner X')
+		} else if (winnerO === true) {
+			console.log('winner O')
+		}
+	}
+
 	const gameFlow = (() => {
 		playerTurn()
+		winner()
 	})()
 
-	return {}
+	return { _gameBoard }
 })()
