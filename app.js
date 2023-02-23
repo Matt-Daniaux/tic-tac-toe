@@ -113,23 +113,30 @@ const gameBoard = (() => {
 	}
 
 	const playerTurn = () => {
+		const controller = new AbortController()
+
 		squareArray.forEach((e, i) => {
-			if (i > 0 && _gameBoard[i] === '') {
-				squareArray[i].addEventListener('click', () => {
-					if (
-						markCount().marker.X <= markCount().marker.O &&
-						_gameBoard[i] === ''
-					) {
-						_gameBoard[i] = player1.getMark()
-					} else if (
-						markCount().marker.X > markCount().marker.O &&
-						_gameBoard[i] === ''
-					) {
-						_gameBoard[i] = player2.getMark()
+			if (i > 0) {
+				squareArray[i].addEventListener(
+					'click',
+					() => {
+						if (markCount().marker.X <= markCount().marker.O) {
+							_gameBoard[i] = player1.getMark()
+						} else if (markCount().marker.X > markCount().marker.O) {
+							_gameBoard[i] = player2.getMark()
+						}
+
+						const allowWinner = winner()
+						if (allowWinner.winnerX === true || allowWinner.winnerO === true) {
+							controller.abort()
+						}
+						displayGameboard()
+					},
+					{
+						once: true,
+						signal: controller.signal,
 					}
-					displayGameboard()
-					winner()
-				})
+				)
 			}
 		})
 	}
@@ -176,11 +183,7 @@ const gameBoard = (() => {
 		return { winnerX, winnerO }
 	}
 	const gameFlow = (() => {
-		if (!winner().winnerX === true) {
-			playerTurn()
-		} else {
-			console.log('nah')
-		}
+		playerTurn()
 	})()
 
 	return { _gameBoard, player1, player2, winner }
