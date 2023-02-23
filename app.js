@@ -98,6 +98,23 @@ const gameBoard = (() => {
 		markP2.textContent = `Mark: ${player2.getMark()}`
 	})()
 
+	const displayResultMessage = () => {
+		const displayResultBox = document.querySelector('.display-result')
+		const winnerP1 = () => {
+			displayResultBox.textContent = 'P1 win '
+			displayResultBox.classList.add('display-result-content')
+		}
+		const winnerP2 = () => {
+			displayResultBox.textContent = 'P2 win '
+			displayResultBox.classList.add('display-result-content')
+		}
+		const deuce = () => {
+			displayResultBox.textContent = 'Deuce'
+			displayResultBox.classList.add('display-result-content')
+		}
+		return { winnerP1, winnerP2, deuce }
+	}
+
 	const markCount = () => {
 		const marker = _gameBoard.reduce(
 			(obj, item) => {
@@ -110,35 +127,6 @@ const gameBoard = (() => {
 			{ X: 0, O: 0 }
 		)
 		return { marker }
-	}
-
-	const playerTurn = () => {
-		const controller = new AbortController()
-
-		squareArray.forEach((e, i) => {
-			if (i > 0) {
-				squareArray[i].addEventListener(
-					'click',
-					() => {
-						if (markCount().marker.X <= markCount().marker.O) {
-							_gameBoard[i] = player1.getMark()
-						} else if (markCount().marker.X > markCount().marker.O) {
-							_gameBoard[i] = player2.getMark()
-						}
-
-						const allowWinner = winner()
-						if (allowWinner.winnerX === true || allowWinner.winnerO === true) {
-							controller.abort()
-						}
-						displayGameboard()
-					},
-					{
-						once: true,
-						signal: controller.signal,
-					}
-				)
-			}
-		})
 	}
 
 	const winner = () => {
@@ -162,28 +150,81 @@ const gameBoard = (() => {
 			[1, 5, 9].every((x) => _gameBoard[x] === 'O') ||
 			[3, 5, 7].every((x) => _gameBoard[x] === 'O')
 
+		const deuce = _gameBoard.reduce((marks, mark) => {
+			if (!marks[mark]) {
+				marks[mark] = 0
+			}
+			marks[mark] += 1
+			return marks
+		}, {})
+
+		const message = displayResultMessage()
+
 		if (winnerX === true) {
 			if (player1.getMark() === 'X') {
 				player1.score += 1
 				displayScore()
+				message.winnerP1()
 			} else {
 				player2.score += 1
 				displayScore()
+				message.winnerP2()
 			}
 		} else if (winnerO === true) {
 			if (player1.getMark() === 'O') {
 				player1.score += 1
 				displayScore()
+				message.winnerP1()
 			} else {
 				player2.score += 1
 				displayScore()
+				message.winnerP2()
 			}
+		} else if (
+			deuce.X + deuce.O === 9 &&
+			(winnerO !== true || winnerX !== true)
+		) {
+			message.deuce()
 		}
-
-		return { winnerX, winnerO }
+		return { winnerX, winnerO, deuce }
 	}
-	const gameFlow = (() => {
-		playerTurn()
+
+	const turnAndWinner = () => {
+		const turn = () => {
+			const controller = new AbortController()
+			squareArray.forEach((e, i) => {
+				if (i > 0) {
+					squareArray[i].addEventListener(
+						'click',
+						() => {
+							if (markCount().marker.X <= markCount().marker.O) {
+								_gameBoard[i] = player1.getMark()
+							} else if (markCount().marker.X > markCount().marker.O) {
+								_gameBoard[i] = player2.getMark()
+							}
+							const allowWinner = winner()
+							if (
+								allowWinner.winnerX === true ||
+								allowWinner.winnerO === true
+							) {
+								controller.abort()
+							}
+							displayGameboard()
+						},
+						{
+							once: true,
+							signal: controller.signal,
+						}
+					)
+				}
+			})
+		}
+		return { turn }
+	}
+
+	const game = (() => {
+		const playGame = turnAndWinner()
+		playGame.turn()
 	})()
 
 	return { _gameBoard, player1, player2, winner }

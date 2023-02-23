@@ -8,6 +8,7 @@
 body {
 	padding: 0;
 	margin: 0;
+	position: relative;
 }
 
 /* display position */
@@ -151,9 +152,14 @@ footer {
 .board {
 	border-radius: 5px;
 	background-color: rgba(128, 128, 128, 0.242);
+
+	position: relative;
 }
 
 .square {
+	position: relative;
+	z-index: 0;
+
 	display: grid;
 	justify-content: center;
 	align-items: center;
@@ -181,4 +187,30 @@ footer {
 .s7,
 .s8 {
 	border-right: 3px solid gray;
+}
+
+.display-result {
+	height: 5rem;
+
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+
+	font-size: 3rem;
+	font-weight: 700;
+
+	color: rgb(0, 198, 195);
+	background-color: rgba(71, 44, 62, 0.825);
+	padding: 2rem;
+	margin: auto;
+
+	display: none;
+}
+
+.display-result-content {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
