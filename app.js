@@ -121,15 +121,39 @@ const gameBoard = (() => {
 		const restartBtn = document.querySelector('.restart-btn')
 		const newTurn = turnAndWinner()
 
-		const restartGame = () => {
-			restartBtn.addEventListener('click', () => {
-				_gameBoard = [null, '', '', '', '', '', '', '', '', '']
-				displayGameboard()
-				displayResultBox.classList.remove('display-result-content')
-				newTurn.turn()
-			})
+		const restartFct = () => {
+			_gameBoard = [null, '', '', '', '', '', '', '', '', '']
+			displayGameboard()
+			displayResultBox.classList.remove('display-result-content')
+			newTurn.turn()
 		}
-		return { restartGame }
+
+		const restartGame = () => {
+			restartBtn.addEventListener('click', restartFct)
+		}
+		return { restartFct, restartGame }
+	}
+
+	const reinitialize = () => {
+		const reinitializeBtn = document.querySelector('.reinitialize')
+		const restartGame = newRound()
+
+		const scoreZero = () => {
+			player1.score = 0
+			player2.score = 0
+			displayScore()
+		}
+
+		const scoreAndBoardZero = () => {
+			scoreZero()
+			restartGame.restartFct()
+		}
+
+		const restartGameAndBoard = () => {
+			reinitializeBtn.addEventListener('click', scoreAndBoardZero)
+		}
+
+		return { restartGameAndBoard }
 	}
 
 	const markCount = () => {
@@ -206,6 +230,26 @@ const gameBoard = (() => {
 		return { winnerX, winnerO, deuce }
 	}
 
+	const turnPlayerGlow = () => {
+		const player1Box = document.querySelector('.player1')
+		const player2Box = document.querySelector('.player2')
+
+		const initialGlow = () => {
+			player1Box.classList.add('player1-turn')
+		}
+
+		const glowFct = (X, O) => {
+			if (X > O) {
+				player1Box.classList.remove('player1-turn')
+				player2Box.classList.add('player2-turn')
+			} else if (X === O) {
+				player2Box.classList.remove('player2-turn')
+				player1Box.classList.add('player1-turn')
+			}
+		}
+		return { glowFct, initialGlow }
+	}
+
 	const turnAndWinner = () => {
 		const turn = () => {
 			const controller = new AbortController()
@@ -233,6 +277,11 @@ const gameBoard = (() => {
 							signal: controller.signal,
 						}
 					)
+					const glow = turnPlayerGlow()
+					squareArray[i].addEventListener('click', () => {
+						const mark = markCount()
+						glow.glowFct(mark.marker.X, mark.marker.O)
+					})
 				}
 			})
 		}
@@ -242,9 +291,13 @@ const gameBoard = (() => {
 	const game = (() => {
 		const playGame = turnAndWinner()
 		const restartGame = newRound()
+		const restartEverything = reinitialize()
+		const glow = turnPlayerGlow()
 
+		glow.initialGlow()
 		playGame.turn()
-		restartGame.restartGame(playGame.turn)
+		restartGame.restartGame()
+		restartEverything.restartGameAndBoard()
 	})()
 
 	return { _gameBoard, player1, player2, winner }

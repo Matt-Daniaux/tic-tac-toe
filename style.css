@@ -90,11 +90,17 @@ main {
 	gap: 2rem;
 }
 
-.change-name {
+.button-name-and-reinitialize {
+	width: 100%;
 	grid-area: 2/2 / 3/3;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	justify-items: center;
+}
 
+.btn-under-board {
+	width: 9rem;
 	padding: 0.5rem 1rem;
-
 	border-radius: 15px;
 }
 
@@ -143,9 +149,18 @@ footer {
 }
 
 /* player design */
-.player1,
+.player1 {
+	background-color: hsl(45, 85%, 20%);
+}
+.player1-turn {
+	background-color: hsl(45, 85%, 50%);
+}
+
 .player2 {
-	background-color: rgba(255, 255, 255, 0.59);
+	background-color: hsl(180, 85%, 20%);
+}
+.player2-turn {
+	background-color: hsl(180, 85%, 50%);
 }
 
 /* Square design  */
