@@ -190,7 +190,7 @@ footer {
 }
 
 .display-result {
-	height: 5rem;
+	height: 8rem;
 
 	position: absolute;
 	left: 0;
@@ -211,6 +211,18 @@ footer {
 
 .display-result-content {
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+}
+.result-text {
+	margin: 0;
+	padding: 0;
+}
+
+.restart-btn {
+	background-color: transparent;
+	font-size: 3rem;
+	padding: 0rem 3rem;
+	margin: auto 0rem 0 0rem;
 }

@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 const gameBoard = (() => {
-	const _gameBoard = [null, '', '', '', '', '', '', '', '', '']
+	let _gameBoard = [null, '', '', '', '', '', '', '', '', '']
 	const square = document.querySelectorAll('.square')
 	const squareArray = [null, ...square]
 
@@ -98,21 +98,38 @@ const gameBoard = (() => {
 		markP2.textContent = `Mark: ${player2.getMark()}`
 	})()
 
+	const displayResultBox = document.querySelector('.display-result')
 	const displayResultMessage = () => {
-		const displayResultBox = document.querySelector('.display-result')
+		const resultText = document.querySelector('.result-text')
+		/* const restartBtn = document.querySelector('.restart-btn') */
 		const winnerP1 = () => {
-			displayResultBox.textContent = 'P1 win '
+			resultText.textContent = 'P1 win '
 			displayResultBox.classList.add('display-result-content')
 		}
 		const winnerP2 = () => {
-			displayResultBox.textContent = 'P2 win '
+			resultText.textContent = 'P2 win '
 			displayResultBox.classList.add('display-result-content')
 		}
 		const deuce = () => {
-			displayResultBox.textContent = 'Deuce'
+			resultText.textContent = 'Deuce'
 			displayResultBox.classList.add('display-result-content')
 		}
 		return { winnerP1, winnerP2, deuce }
+	}
+
+	const newRound = () => {
+		const restartBtn = document.querySelector('.restart-btn')
+		const newTurn = turnAndWinner()
+
+		const restartGame = () => {
+			restartBtn.addEventListener('click', () => {
+				_gameBoard = [null, '', '', '', '', '', '', '', '', '']
+				displayGameboard()
+				displayResultBox.classList.remove('display-result-content')
+				newTurn.turn()
+			})
+		}
+		return { restartGame }
 	}
 
 	const markCount = () => {
@@ -224,7 +241,10 @@ const gameBoard = (() => {
 
 	const game = (() => {
 		const playGame = turnAndWinner()
+		const restartGame = newRound()
+
 		playGame.turn()
+		restartGame.restartGame(playGame.turn)
 	})()
 
 	return { _gameBoard, player1, player2, winner }
