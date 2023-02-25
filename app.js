@@ -6,10 +6,14 @@ const gameBoard = (() => {
 	const square = document.querySelectorAll('.square')
 	const squareArray = [null, ...square]
 
+	const player1Box = document.querySelector('.player1')
+	const player2Box = document.querySelector('.player2')
+
 	const player = (name, playerDisplayPosition, mark) => {
 		// eslint-disable-next-line prefer-const
 		let score = 0
 		let namePlayer = name
+		const lastWinner = 0
 
 		const getMark = () => mark
 		const getName = () => namePlayer
@@ -37,6 +41,7 @@ const gameBoard = (() => {
 			getMark,
 			getName,
 			score,
+			lastWinner,
 			playerNameDisplayPosition,
 			changePlayerName,
 		}
@@ -103,11 +108,11 @@ const gameBoard = (() => {
 		const resultText = document.querySelector('.result-text')
 		/* const restartBtn = document.querySelector('.restart-btn') */
 		const winnerP1 = () => {
-			resultText.textContent = 'P1 win '
+			resultText.textContent = `${player1.getName()} win`
 			displayResultBox.classList.add('display-result-content')
 		}
 		const winnerP2 = () => {
-			resultText.textContent = 'P2 win '
+			resultText.textContent = `${player2.getName()} win`
 			displayResultBox.classList.add('display-result-content')
 		}
 		const deuce = () => {
@@ -122,10 +127,19 @@ const gameBoard = (() => {
 		const newTurn = turnAndWinner()
 
 		const restartFct = () => {
+			const lastWinner = winner()
+			lastWinner.lastWinner()
+
 			_gameBoard = [null, '', '', '', '', '', '', '', '', '']
 			displayGameboard()
 			displayResultBox.classList.remove('display-result-content')
 			newTurn.turn()
+			squareArray.forEach((e, i) => {
+				if (i > 0) {
+					squareArray[i].classList.remove('squareP1')
+					squareArray[i].classList.remove('squareP2')
+				}
+			})
 		}
 
 		const restartGame = () => {
@@ -201,53 +215,99 @@ const gameBoard = (() => {
 
 		const message = displayResultMessage()
 
-		if (winnerX === true) {
-			if (player1.getMark() === 'X') {
-				player1.score += 1
-				displayScore()
-				message.winnerP1()
-			} else {
-				player2.score += 1
-				displayScore()
-				message.winnerP2()
+		const bigWinner = () => {
+			if (winnerX === true) {
+				if (player1.getMark() === 'X') {
+					player1.score += 1
+					displayScore()
+					message.winnerP1()
+					player2Box.classList.remove('player2-glow')
+					player1Box.classList.add('player1-glow')
+				} else {
+					player2.score += 1
+					displayScore()
+					message.winnerP2()
+					player1Box.classList.remove('player2-glow')
+					player2Box.classList.add('player2-glow')
+				}
+			} else if (winnerO === true) {
+				if (player1.getMark() === 'O') {
+					player1.score += 1
+					displayScore()
+					message.winnerP1()
+					player2Box.classList.remove('player2-glow')
+					player1Box.classList.add('player1-glow')
+				} else {
+					player2.score += 1
+					displayScore()
+					message.winnerP2()
+					player1Box.classList.remove('player2-glow')
+					player2Box.classList.add('player2-glow')
+				}
+			} else if (
+				deuce.X + deuce.O === 9 &&
+				(winnerO !== true || winnerX !== true)
+			) {
+				message.deuce()
 			}
-		} else if (winnerO === true) {
-			if (player1.getMark() === 'O') {
-				player1.score += 1
-				displayScore()
-				message.winnerP1()
-			} else {
-				player2.score += 1
-				displayScore()
-				message.winnerP2()
-			}
-		} else if (
-			deuce.X + deuce.O === 9 &&
-			(winnerO !== true || winnerX !== true)
-		) {
-			message.deuce()
 		}
-		return { winnerX, winnerO, deuce }
+
+		const lastWinner = () => {
+			if (winnerX === true) {
+				player1.lastWinner = 1
+				player2.lastWinner = 0
+			} else if (winnerO === true) {
+				player2.lastWinner = 1
+				player1.lastWinner = 0
+			}
+		}
+
+		return { winnerX, winnerO, deuce, bigWinner, lastWinner }
 	}
 
 	const turnPlayerGlow = () => {
-		const player1Box = document.querySelector('.player1')
-		const player2Box = document.querySelector('.player2')
-
 		const initialGlow = () => {
-			player1Box.classList.add('player1-turn')
+			player1Box.classList.add('player1-glow')
 		}
 
 		const glowFct = (X, O) => {
 			if (X > O) {
-				player1Box.classList.remove('player1-turn')
-				player2Box.classList.add('player2-turn')
+				player1Box.classList.remove('player1-glow')
+				player2Box.classList.add('player2-glow')
 			} else if (X === O) {
-				player2Box.classList.remove('player2-turn')
-				player1Box.classList.add('player1-turn')
+				player2Box.classList.remove('player2-glow')
+				player1Box.classList.add('player1-glow')
 			}
 		}
-		return { glowFct, initialGlow }
+
+		const glowWinner = () => {
+			const winnerG = winner()
+			if (winnerG.winnerX === true) {
+				if (player1.getMark() === 'X') {
+					player2Box.classList.remove('player2-glow')
+					player1Box.classList.add('player1-glow')
+				} else {
+					player1Box.classList.remove('player1-glow')
+					player2Box.classList.add('player2-glow')
+				}
+			} else if (winnerG.winnerO === true) {
+				if (player1.getMark() === 'O') {
+					player2Box.classList.remove('player2-glow')
+					player1Box.classList.add('player1-glow')
+				} else {
+					player1Box.classList.remove('player1-glow')
+					player2Box.classList.add('player2-glow')
+				}
+			} else if (
+				winnerG.deuce.X + winnerG.deuce.O === 9 &&
+				(winnerG.winnerO !== true || winnerG.winnerX !== true)
+			) {
+				player1Box.classList.remove('player1-glow')
+				player2Box.classList.remove('player2-glow')
+			}
+		}
+
+		return { glowFct, initialGlow, glowWinner }
 	}
 
 	const turnAndWinner = () => {
@@ -258,12 +318,30 @@ const gameBoard = (() => {
 					squareArray[i].addEventListener(
 						'click',
 						() => {
-							if (markCount().marker.X <= markCount().marker.O) {
-								_gameBoard[i] = player1.getMark()
-							} else if (markCount().marker.X > markCount().marker.O) {
-								_gameBoard[i] = player2.getMark()
+							const markerCount = markCount()
+							if (
+								(player1.lastWinner === 0 && player2.lastWinner === 0) ||
+								(player1.lastWinner === 0 && player2.lastWinner === 1)
+							) {
+								if (markerCount.marker.X <= markerCount.marker.O) {
+									_gameBoard[i] = player1.getMark()
+									squareArray[i].classList.add('squareP1')
+								} else if (markerCount.marker.X > markerCount.marker.O) {
+									_gameBoard[i] = player2.getMark()
+									squareArray[i].classList.add('squareP2')
+								}
+							} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
+								if (markerCount.marker.X >= markerCount.marker.O) {
+									_gameBoard[i] = player2.getMark()
+									squareArray[i].classList.add('squareP2')
+								} else if (markerCount.marker.X < markerCount.marker.O) {
+									_gameBoard[i] = player1.getMark()
+									squareArray[i].classList.add('squareP1')
+								}
 							}
+
 							const allowWinner = winner()
+							allowWinner.bigWinner()
 							if (
 								allowWinner.winnerX === true ||
 								allowWinner.winnerO === true
@@ -281,6 +359,7 @@ const gameBoard = (() => {
 					squareArray[i].addEventListener('click', () => {
 						const mark = markCount()
 						glow.glowFct(mark.marker.X, mark.marker.O)
+						glow.glowWinner()
 					})
 				}
 			})
@@ -295,10 +374,11 @@ const gameBoard = (() => {
 		const glow = turnPlayerGlow()
 
 		glow.initialGlow()
+
 		playGame.turn()
 		restartGame.restartGame()
 		restartEverything.restartGameAndBoard()
 	})()
 
-	return { _gameBoard, player1, player2, winner }
+	return { _gameBoard, player1, player2, winner, newRound }
 })()
