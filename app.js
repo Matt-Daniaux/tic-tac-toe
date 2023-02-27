@@ -9,6 +9,8 @@ const gameBoard = (() => {
 	const player1Box = document.querySelector('.player1')
 	const player2Box = document.querySelector('.player2')
 
+	const displayResultBox = document.querySelector('.display-result')
+
 	const player = (name, playerDisplayPosition, mark) => {
 		// eslint-disable-next-line prefer-const
 		let score = 0
@@ -50,79 +52,109 @@ const gameBoard = (() => {
 	const player1 = player('JoeP1', 1, 'X')
 	const player2 = player('MarcelP2', 2, 'O')
 
-	const displayGameboard = () => {
-		// eslint-disable-next-line no-restricted-syntax
-		for (const iSquare in _gameBoard) {
-			if (iSquare > '0') {
-				squareArray[iSquare].textContent = _gameBoard[iSquare]
+	const display = (() => {
+		const displayGameboard = () => {
+			// eslint-disable-next-line no-restricted-syntax
+			for (const iSquare in _gameBoard) {
+				if (iSquare > '0') {
+					squareArray[iSquare].textContent = _gameBoard[iSquare]
+				}
 			}
 		}
-	}
-	displayGameboard()
 
-	const displayChangeName = (() => {
-		const playerNameBtn = document.querySelector('.change-name')
-		const blurDiv = document.querySelector('.blur-background')
-		const formChangePlayer = document.querySelector('.form-Change-Player')
-		const sendPlayerNameChange = document.querySelector('.send')
+		const displayChangeName = (() => {
+			const playerNameBtn = document.querySelector('.change-name')
+			const blurDiv = document.querySelector('.blur-background')
+			const formChangePlayer = document.querySelector('.form-Change-Player')
+			const sendPlayerNameChange = document.querySelector('.send')
 
-		playerNameBtn.addEventListener('click', () => {
-			blurDiv.classList.add('display-contents')
-			formChangePlayer.classList.add('display-contents')
-		})
+			playerNameBtn.addEventListener('click', () => {
+				blurDiv.classList.add('display-contents')
+				formChangePlayer.classList.add('display-contents')
+			})
 
-		sendPlayerNameChange.addEventListener('click', () => {
-			const selectedRadioBtn = document.querySelector(
-				'input[type="radio"][name="player"]:checked'
-			)
-			if (selectedRadioBtn.value === '1') {
-				player1.changePlayerName()
-			} else if (selectedRadioBtn.value === '2') {
-				player2.changePlayerName()
+			sendPlayerNameChange.addEventListener('click', () => {
+				const selectedRadioBtn = document.querySelector(
+					'input[type="radio"][name="player"]:checked'
+				)
+				if (selectedRadioBtn.value === '1') {
+					player1.changePlayerName()
+				} else if (selectedRadioBtn.value === '2') {
+					player2.changePlayerName()
+				}
+
+				blurDiv.classList.remove('display-contents')
+				formChangePlayer.classList.remove('display-contents')
+			})
+		})()
+
+		const displayScore = () => {
+			const scoreP1 = document.querySelector('.scoreP1')
+			const scoreP2 = document.querySelector('.scoreP2')
+
+			scoreP1.textContent = player1.score
+			scoreP2.textContent = player2.score
+		}
+
+		const displayMark = (() => {
+			const markP1 = document.querySelector('.markP1')
+			const markP2 = document.querySelector('.markP2')
+
+			markP1.textContent = `Mark: ${player1.getMark()}`
+			markP2.textContent = `Mark: ${player2.getMark()}`
+		})()
+
+		const displayResultMessage = (() => {
+			const resultText = document.querySelector('.result-text')
+			/* const restartBtn = document.querySelector('.restart-btn') */
+			const winnerP1 = () => {
+				resultText.textContent = `${player1.getName()} win`
+				displayResultBox.classList.add('display-result-content')
+			}
+			const winnerP2 = () => {
+				resultText.textContent = `${player2.getName()} win`
+				displayResultBox.classList.add('display-result-content')
+			}
+			const deuce = () => {
+				resultText.textContent = 'Deuce'
+				displayResultBox.classList.add('display-result-content')
+			}
+			return { winnerP1, winnerP2, deuce }
+		})()
+
+		const reinitialize = (() => {
+			const reinitializeBtn = document.querySelector('.reinitialize')
+			const { restartFct } = newRound()
+
+			const scoreZero = () => {
+				player1.score = 0
+				player2.score = 0
+				display.displayScore()
 			}
 
-			blurDiv.classList.remove('display-contents')
-			formChangePlayer.classList.remove('display-contents')
-		})
+			const scoreAndBoardZero = () => {
+				scoreZero()
+				restartFct()
+			}
+
+			const restartGameAndBoard = () => {
+				reinitializeBtn.addEventListener('click', scoreAndBoardZero)
+			}
+
+			return { restartGameAndBoard }
+		})()
+
+		displayScore()
+
+		return {
+			displayGameboard,
+			displayScore,
+			displayResultMessage,
+			reinitialize,
+		}
 	})()
 
-	const displayScore = () => {
-		const scoreP1 = document.querySelector('.scoreP1')
-		const scoreP2 = document.querySelector('.scoreP2')
-
-		scoreP1.textContent = player1.score
-		scoreP2.textContent = player2.score
-	}
-	displayScore()
-
-	const displayMark = (() => {
-		const markP1 = document.querySelector('.markP1')
-		const markP2 = document.querySelector('.markP2')
-
-		markP1.textContent = `Mark: ${player1.getMark()}`
-		markP2.textContent = `Mark: ${player2.getMark()}`
-	})()
-
-	const displayResultBox = document.querySelector('.display-result')
-	const displayResultMessage = () => {
-		const resultText = document.querySelector('.result-text')
-		/* const restartBtn = document.querySelector('.restart-btn') */
-		const winnerP1 = () => {
-			resultText.textContent = `${player1.getName()} win`
-			displayResultBox.classList.add('display-result-content')
-		}
-		const winnerP2 = () => {
-			resultText.textContent = `${player2.getName()} win`
-			displayResultBox.classList.add('display-result-content')
-		}
-		const deuce = () => {
-			resultText.textContent = 'Deuce'
-			displayResultBox.classList.add('display-result-content')
-		}
-		return { winnerP1, winnerP2, deuce }
-	}
-
-	const newRound = () => {
+	const newRound = (() => {
 		const restartBtn = document.querySelector('.restart-btn')
 		const newTurn = turnAndWinner()
 
@@ -131,7 +163,7 @@ const gameBoard = (() => {
 			lastWinner.lastWinner()
 
 			_gameBoard = [null, '', '', '', '', '', '', '', '', '']
-			displayGameboard()
+			display.displayGameboard()
 			displayResultBox.classList.remove('display-result-content')
 			newTurn.turn()
 			squareArray.forEach((e, i) => {
@@ -146,29 +178,7 @@ const gameBoard = (() => {
 			restartBtn.addEventListener('click', restartFct)
 		}
 		return { restartFct, restartGame }
-	}
-
-	const reinitialize = () => {
-		const reinitializeBtn = document.querySelector('.reinitialize')
-		const restartGame = newRound()
-
-		const scoreZero = () => {
-			player1.score = 0
-			player2.score = 0
-			displayScore()
-		}
-
-		const scoreAndBoardZero = () => {
-			scoreZero()
-			restartGame.restartFct()
-		}
-
-		const restartGameAndBoard = () => {
-			reinitializeBtn.addEventListener('click', scoreAndBoardZero)
-		}
-
-		return { restartGameAndBoard }
-	}
+	})()
 
 	const markCount = () => {
 		const marker = _gameBoard.reduce(
@@ -213,34 +223,32 @@ const gameBoard = (() => {
 			return marks
 		}, {})
 
-		const message = displayResultMessage()
-
 		const bigWinner = () => {
 			if (winnerX === true) {
 				if (player1.getMark() === 'X') {
 					player1.score += 1
-					displayScore()
-					message.winnerP1()
+					display.displayScore()
+					display.displayResultMessage.winnerP1()
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
 				} else {
 					player2.score += 1
-					displayScore()
-					message.winnerP2()
+					display.displayScore()
+					display.displayResultMessage.winnerP2()
 					player1Box.classList.remove('player2-glow')
 					player2Box.classList.add('player2-glow')
 				}
 			} else if (winnerO === true) {
 				if (player1.getMark() === 'O') {
 					player1.score += 1
-					displayScore()
-					message.winnerP1()
+					display.displayScore()
+					display.displayResultMessage.winnerP1()
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
 				} else {
 					player2.score += 1
-					displayScore()
-					message.winnerP2()
+					display.displayScore()
+					display.displayResultMessage.winnerP2()
 					player1Box.classList.remove('player2-glow')
 					player2Box.classList.add('player2-glow')
 				}
@@ -248,7 +256,7 @@ const gameBoard = (() => {
 				deuce.X + deuce.O === 9 &&
 				(winnerO !== true || winnerX !== true)
 			) {
-				message.deuce()
+				display.displayResultMessage.deuce()
 			}
 		}
 
@@ -348,7 +356,7 @@ const gameBoard = (() => {
 							) {
 								controller.abort()
 							}
-							displayGameboard()
+							display.displayGameboard()
 						},
 						{
 							once: true,
@@ -366,7 +374,7 @@ const gameBoard = (() => {
 		}
 		return { turn }
 	}
-
+	/* 
 	const game = (() => {
 		const playGame = turnAndWinner()
 		const restartGame = newRound()
@@ -379,6 +387,7 @@ const gameBoard = (() => {
 		restartGame.restartGame()
 		restartEverything.restartGameAndBoard()
 	})()
+ */
 
-	return { _gameBoard, player1, player2, winner, newRound }
+	return { _gameBoard, player1, player2, display }
 })()
