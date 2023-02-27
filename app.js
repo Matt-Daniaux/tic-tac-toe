@@ -1,14 +1,13 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-unused-vars */
 
-const gameBoard = (() => {
+const ticTacToe = (() => {
 	let _gameBoard = [null, '', '', '', '', '', '', '', '', '']
 	const square = document.querySelectorAll('.square')
 	const squareArray = [null, ...square]
 
 	const player1Box = document.querySelector('.player1')
 	const player2Box = document.querySelector('.player2')
-
 	const displayResultBox = document.querySelector('.display-result')
 
 	const player = (name, playerDisplayPosition, mark) => {
@@ -48,7 +47,6 @@ const gameBoard = (() => {
 			changePlayerName,
 		}
 	}
-
 	const player1 = player('JoeP1', 1, 'X')
 	const player2 = player('MarcelP2', 2, 'O')
 
@@ -62,7 +60,7 @@ const gameBoard = (() => {
 			}
 		}
 
-		const displayChangeName = (() => {
+		const displayChangeName = () => {
 			const playerNameBtn = document.querySelector('.change-name')
 			const blurDiv = document.querySelector('.blur-background')
 			const formChangePlayer = document.querySelector('.form-Change-Player')
@@ -86,7 +84,7 @@ const gameBoard = (() => {
 				blurDiv.classList.remove('display-contents')
 				formChangePlayer.classList.remove('display-contents')
 			})
-		})()
+		}
 
 		const displayScore = () => {
 			const scoreP1 = document.querySelector('.scoreP1')
@@ -96,13 +94,13 @@ const gameBoard = (() => {
 			scoreP2.textContent = player2.score
 		}
 
-		const displayMark = (() => {
+		const displayMark = () => {
 			const markP1 = document.querySelector('.markP1')
 			const markP2 = document.querySelector('.markP2')
 
 			markP1.textContent = `Mark: ${player1.getMark()}`
 			markP2.textContent = `Mark: ${player2.getMark()}`
-		})()
+		}
 
 		const displayResultMessage = (() => {
 			const resultText = document.querySelector('.result-text')
@@ -122,7 +120,8 @@ const gameBoard = (() => {
 			return { winnerP1, winnerP2, deuce }
 		})()
 
-		const reinitialize = (() => {
+		// To start after newRound
+		const reinitialize = () => {
 			const reinitializeBtn = document.querySelector('.reinitialize')
 			const { restartFct } = newRound()
 
@@ -142,57 +141,17 @@ const gameBoard = (() => {
 			}
 
 			return { restartGameAndBoard }
-		})()
-
-		displayScore()
+		}
 
 		return {
 			displayGameboard,
+			displayChangeName,
 			displayScore,
+			displayMark,
 			displayResultMessage,
 			reinitialize,
 		}
 	})()
-
-	const newRound = (() => {
-		const restartBtn = document.querySelector('.restart-btn')
-		const newTurn = turnAndWinner()
-
-		const restartFct = () => {
-			const lastWinner = winner()
-			lastWinner.lastWinner()
-
-			_gameBoard = [null, '', '', '', '', '', '', '', '', '']
-			display.displayGameboard()
-			displayResultBox.classList.remove('display-result-content')
-			newTurn.turn()
-			squareArray.forEach((e, i) => {
-				if (i > 0) {
-					squareArray[i].classList.remove('squareP1')
-					squareArray[i].classList.remove('squareP2')
-				}
-			})
-		}
-
-		const restartGame = () => {
-			restartBtn.addEventListener('click', restartFct)
-		}
-		return { restartFct, restartGame }
-	})()
-
-	const markCount = () => {
-		const marker = _gameBoard.reduce(
-			(obj, item) => {
-				if (!obj[item]) {
-					obj[item] = 0
-				}
-				obj[item]++
-				return obj
-			},
-			{ X: 0, O: 0 }
-		)
-		return { marker }
-	}
 
 	const winner = () => {
 		const winnerX =
@@ -273,7 +232,8 @@ const gameBoard = (() => {
 		return { winnerX, winnerO, deuce, bigWinner, lastWinner }
 	}
 
-	const turnPlayerGlow = () => {
+	// Use in turnAndWinner
+	const turnPlayerGlow = (() => {
 		const initialGlow = () => {
 			player1Box.classList.add('player1-glow')
 		}
@@ -316,9 +276,23 @@ const gameBoard = (() => {
 		}
 
 		return { glowFct, initialGlow, glowWinner }
-	}
+	})()
 
-	const turnAndWinner = () => {
+	const turnAndWinner = (() => {
+		const markCount = () => {
+			const marker = _gameBoard.reduce(
+				(obj, item) => {
+					if (!obj[item]) {
+						obj[item] = 0
+					}
+					obj[item]++
+					return obj
+				},
+				{ X: 0, O: 0 }
+			)
+			return { marker }
+		}
+
 		const turn = () => {
 			const controller = new AbortController()
 			squareArray.forEach((e, i) => {
@@ -363,31 +337,56 @@ const gameBoard = (() => {
 							signal: controller.signal,
 						}
 					)
-					const glow = turnPlayerGlow()
+					/* const glow = turnPlayerGlow() */
 					squareArray[i].addEventListener('click', () => {
-						const mark = markCount()
-						glow.glowFct(mark.marker.X, mark.marker.O)
-						glow.glowWinner()
+						const markerCount = markCount()
+						turnPlayerGlow.glowFct(markerCount.marker.X, markerCount.marker.O)
+						turnPlayerGlow.glowWinner()
 					})
 				}
 			})
 		}
-		return { turn }
-	}
-	/* 
-	const game = (() => {
-		const playGame = turnAndWinner()
-		const restartGame = newRound()
-		const restartEverything = reinitialize()
-		const glow = turnPlayerGlow()
 
-		glow.initialGlow()
+		const newRound = () => {
+			const restartBtn = document.querySelector('.restart-btn')
+			/* const newTurn = turnAndWinner() */
 
-		playGame.turn()
-		restartGame.restartGame()
-		restartEverything.restartGameAndBoard()
+			const restartFct = () => {
+				const lastWinner = winner()
+				lastWinner.lastWinner()
+
+				_gameBoard = [null, '', '', '', '', '', '', '', '', '']
+				display.displayGameboard()
+				displayResultBox.classList.remove('display-result-content')
+
+				newTurn.turn()
+				squareArray.forEach((e, i) => {
+					if (i > 0) {
+						squareArray[i].classList.remove('squareP1')
+						squareArray[i].classList.remove('squareP2')
+					}
+				})
+			}
+
+			const restartGame = () => {
+				restartBtn.addEventListener('click', restartFct)
+			}
+			return { restartFct, restartGame }
+		}
+
+		return { turn, newRound }
 	})()
- */
 
-	return { _gameBoard, player1, player2, display }
+	const game = () => {
+		display.displayGameboard()
+		display.displayChangeName()
+		display.displayScore()
+		display.displayMark()
+
+		turnAndWinner.turn()
+	}
+
+	return { game }
 })()
+
+ticTacToe.game()
