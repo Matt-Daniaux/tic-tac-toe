@@ -3,8 +3,9 @@
 
 const ticTacToe = (() => {
 	let _gameBoard = [null, '', '', '', '', '', '', '', '', '']
-	const square = document.querySelectorAll('.square')
-	const squareArray = [null, ...square]
+
+	const squares = document.querySelectorAll('.square')
+	const squareArray = [null, ...squares]
 
 	const player1Box = document.querySelector('.player1')
 	const player2Box = document.querySelector('.player2')
@@ -14,6 +15,7 @@ const ticTacToe = (() => {
 		// eslint-disable-next-line prefer-const
 		let score = 0
 		let namePlayer = name
+		// lastWinner = 1 if player win round
 		const lastWinner = 0
 
 		const getMark = () => mark
@@ -21,13 +23,10 @@ const ticTacToe = (() => {
 		const playerNameDisplayPosition = () => {
 			const p1Display = document.querySelector('.player1DisplayName')
 			const p2Display = document.querySelector('.player2DisplayName')
-
 			if (playerDisplayPosition === 1) {
 				p1Display.textContent = namePlayer
 			} else if (playerDisplayPosition === 2) {
 				p2Display.textContent = namePlayer
-			} else {
-				/* empty */
 			}
 		}
 		playerNameDisplayPosition()
@@ -43,19 +42,18 @@ const ticTacToe = (() => {
 			getName,
 			score,
 			lastWinner,
-			playerNameDisplayPosition,
 			changePlayerName,
 		}
 	}
-	const player1 = player('JoeP1', 1, 'X')
-	const player2 = player('MarcelP2', 2, 'O')
+	const player1 = player('Bibo', 1, 'X')
+	const player2 = player('Bourbou', 2, 'O')
 
 	const display = (() => {
 		const displayGameboard = () => {
 			// eslint-disable-next-line no-restricted-syntax
-			for (const iSquare in _gameBoard) {
-				if (iSquare > '0') {
-					squareArray[iSquare].textContent = _gameBoard[iSquare]
+			for (const square in _gameBoard) {
+				if (square > '0') {
+					squareArray[square].textContent = _gameBoard[square]
 				}
 			}
 		}
@@ -166,12 +164,16 @@ const ticTacToe = (() => {
 					display.displayResultMessage.winnerP1()
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
+					player1.lastWinner = 2
+					player2.lastWinner = 2
 				} else {
 					player2.score += 1
 					display.displayScore()
 					display.displayResultMessage.winnerP2()
 					player1Box.classList.remove('player1-glow')
 					player2Box.classList.add('player2-glow')
+					player1.lastWinner = 2
+					player2.lastWinner = 2
 				}
 			} else if (winnerO === true) {
 				if (player1.getMark() === 'O') {
@@ -180,18 +182,24 @@ const ticTacToe = (() => {
 					display.displayResultMessage.winnerP1()
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
+					player1.lastWinner = 2
+					player2.lastWinner = 2
 				} else {
 					player2.score += 1
 					display.displayScore()
 					display.displayResultMessage.winnerP2()
 					player1Box.classList.remove('player1-glow')
 					player2Box.classList.add('player2-glow')
+					player1.lastWinner = 2
+					player2.lastWinner = 2
 				}
 			} else if (
 				deuce.X + deuce.O === 9 &&
 				(winnerO !== true || winnerX !== true)
 			) {
 				display.displayResultMessage.deuce()
+				player1.lastWinner = 2
+				player2.lastWinner = 2
 			}
 		}
 
@@ -208,10 +216,10 @@ const ticTacToe = (() => {
 		return { winnerX, winnerO, deuce, bigWinner, lastWinner }
 	}
 
-	// Use in turnAndWinner
 	const turnPlayerGlow = (() => {
 		const initialGlow = (() => {
 			player1Box.classList.add('player1-glow')
+			player2Box.classList.remove('player2-glow')
 		})()
 
 		const glowFct = (X, O) => {
@@ -237,9 +245,21 @@ const ticTacToe = (() => {
 			}
 		}
 
-		const glowWinner = () => {
-			const winnerG = winner()
-			if (winnerG.winnerX === true) {
+		const glowFctOnRestart = () => {
+			if (
+				(player1.lastWinner === 0 && player2.lastWinner === 1) ||
+				(player1.lastWinner === 0 && player2.lastWinner === 0)
+			) {
+				player1Box.classList.add('player1-glow')
+				player2Box.classList.remove('player2-glow')
+			} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
+				player2Box.classList.add('player2-glow')
+				player1Box.classList.remove('player1-glow')
+			}
+		}
+
+		const glowWinner = (xWin, oWin, deuce) => {
+			if (xWin === true) {
 				if (player1.getMark() === 'X') {
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
@@ -247,7 +267,7 @@ const ticTacToe = (() => {
 					player1Box.classList.remove('player1-glow')
 					player2Box.classList.add('player2-glow')
 				}
-			} else if (winnerG.winnerO === true) {
+			} else if (oWin === true) {
 				if (player1.getMark() === 'O') {
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
@@ -255,16 +275,13 @@ const ticTacToe = (() => {
 					player1Box.classList.remove('player1-glow')
 					player2Box.classList.add('player2-glow')
 				}
-			} else if (
-				winnerG.deuce.X + winnerG.deuce.O === 9 &&
-				(winnerG.winnerO !== true || winnerG.winnerX !== true)
-			) {
+			} else if (deuce === 9 && (xWin !== true || oWin !== true)) {
 				player1Box.classList.remove('player1-glow')
 				player2Box.classList.remove('player2-glow')
 			}
 		}
 
-		return { glowFct, glowWinner }
+		return { glowFct, glowFctOnRestart, glowWinner }
 	})()
 
 	const turnAndWinner = (() => {
@@ -285,16 +302,21 @@ const ticTacToe = (() => {
 		const turn = () => {
 			const controller = new AbortController()
 			squareArray.forEach((e, i) => {
-				if (i > 0) {
+				if (i > 0 && squareArray[i].textContent === '') {
 					squareArray[i].addEventListener(
 						'click',
 						() => {
 							const markerCount = markCount()
+							console.log(markerCount.marker.X, markerCount.marker.O)
+							console.log(player1.lastWinner, player2.lastWinner)
 							if (
 								(player1.lastWinner === 0 && player2.lastWinner === 0) ||
 								(player1.lastWinner === 0 && player2.lastWinner === 1)
 							) {
-								if (markerCount.marker.X <= markerCount.marker.O) {
+								if (
+									markerCount.marker.X <= markerCount.marker.O &&
+									squareArray[i].textContent === ''
+								) {
 									_gameBoard[i] = player1.getMark()
 									squareArray[i].classList.add('squareP1')
 									squareArray[i].classList.remove('squareP2')
@@ -302,7 +324,10 @@ const ticTacToe = (() => {
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
-								} else if (markerCount.marker.X > markerCount.marker.O) {
+								} else if (
+									markerCount.marker.X > markerCount.marker.O &&
+									squareArray[i].textContent === ''
+								) {
 									_gameBoard[i] = player2.getMark()
 									squareArray[i].classList.add('squareP2')
 									squareArray[i].classList.remove('squareP1')
@@ -312,7 +337,10 @@ const ticTacToe = (() => {
 									)
 								}
 							} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
-								if (markerCount.marker.X >= markerCount.marker.O) {
+								if (
+									markerCount.marker.X >= markerCount.marker.O &&
+									squareArray[i].textContent === ''
+								) {
 									_gameBoard[i] = player2.getMark()
 									squareArray[i].classList.add('squareP2')
 									squareArray[i].classList.remove('squareP1')
@@ -320,7 +348,11 @@ const ticTacToe = (() => {
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
-								} else if (markerCount.marker.X < markerCount.marker.O) {
+									console.log('one')
+								} else if (
+									markerCount.marker.X < markerCount.marker.O &&
+									squareArray[i].textContent === ''
+								) {
 									_gameBoard[i] = player1.getMark()
 									squareArray[i].classList.add('squareP1')
 									squareArray[i].classList.remove('squareP2')
@@ -328,32 +360,41 @@ const ticTacToe = (() => {
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
+									console.log('two')
 								}
 							}
+							console.log(_gameBoard)
+
 							const allowWinner = winner()
 							allowWinner.bigWinner()
-							if (
+							turnPlayerGlow.glowWinner(
+								allowWinner.winnerX,
+								allowWinner.winnerO,
+								allowWinner.deuce
+							)
+							/* if (
 								allowWinner.winnerX === true ||
 								allowWinner.winnerO === true
 							) {
 								controller.abort()
-							}
+							} */
 							display.displayGameboard()
 						},
 						{
-							once: true,
+							/* once: true, */
 							signal: controller.signal,
 						}
 					)
-					/* const glow = turnPlayerGlow() */
-					squareArray[i].addEventListener('click', () => {
-						turnPlayerGlow.glowWinner()
-					})
+
+					/* squareArray[i].addEventListener('click', () => {
+						
+						console.log(_gameBoard)
+					}) */
 				}
 			})
 		}
 
-		const newRound = () => {
+		const newRound = (() => {
 			const restartBtn = document.querySelector('.restart-btn')
 
 			const restartFct = () => {
@@ -368,22 +409,21 @@ const ticTacToe = (() => {
 						squareArray[i].classList.remove('squareP2')
 					}
 				})
-				turn()
+				/* turn() */
 			}
 
 			const restartGame = (() => {
 				restartBtn.addEventListener('click', () => {
 					restartFct()
-					turnPlayerGlow.glowFct()
+					turnPlayerGlow.glowFctOnRestart()
 				})
 			})()
 
 			return { restartFct }
-		}
+		})()
 
-		const reinitialize = () => {
+		const reinitialize = (() => {
 			const reinitializeBtn = document.querySelector('.reinitialize')
-			const { restartFct } = newRound()
 
 			const scoreZero = () => {
 				player1.score = 0
@@ -391,15 +431,22 @@ const ticTacToe = (() => {
 				display.displayScore()
 			}
 
+			const lastWinnerToZero = () => {
+				player1.lastWinner = 0
+				player2.lastWinner = 0
+			}
+
 			const scoreAndBoardZero = () => {
 				scoreZero()
-				restartFct()
+				newRound.restartFct()
+				lastWinnerToZero()
+				turnPlayerGlow.glowFctOnRestart()
 			}
 
 			const restartGameAndBoard = (() => {
 				reinitializeBtn.addEventListener('click', scoreAndBoardZero)
 			})()
-		}
+		})()
 
 		return { turn, newRound, reinitialize }
 	})()
@@ -411,7 +458,6 @@ const ticTacToe = (() => {
 		display.displayMark()
 
 		turnAndWinner.turn()
-		turnAndWinner.reinitialize()
 	}
 
 	return { game }
