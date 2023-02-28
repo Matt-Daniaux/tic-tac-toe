@@ -195,11 +195,12 @@ const ticTacToe = (() => {
 				}
 			} else if (
 				deuce.X + deuce.O === 9 &&
-				(winnerO !== true || winnerX !== true)
+				winnerO !== true &&
+				winnerX !== true
 			) {
 				display.displayResultMessage.deuce()
-				player1.lastWinner = 2
-				player2.lastWinner = 2
+				/* player1.lastWinner = 2
+				player2.lastWinner = 2 */
 			}
 		}
 
@@ -210,7 +211,10 @@ const ticTacToe = (() => {
 			} else if (winnerO === true) {
 				player2.lastWinner = 1
 				player1.lastWinner = 0
-			}
+			} /* else if (deuce.X + deuce.O === 9 &&
+				winnerO !== true && winnerX !== true) {
+				if()
+			} */
 		}
 
 		return { winnerX, winnerO, deuce, bigWinner, lastWinner }
@@ -224,7 +228,7 @@ const ticTacToe = (() => {
 
 		const glowFct = (X, O) => {
 			if (
-				(player1.lastWinner === 1 && player2.lastWinner === 0) ||
+				(player1.lastWinner === 0 && player2.lastWinner === 1) ||
 				(player1.lastWinner === 0 && player2.lastWinner === 0)
 			) {
 				if (X > O) {
@@ -234,7 +238,7 @@ const ticTacToe = (() => {
 					player2Box.classList.add('player2-glow')
 					player1Box.classList.remove('player1-glow')
 				}
-			} else if (player1.lastWinner === 0 && player2.lastWinner === 1) {
+			} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
 				if (O > X) {
 					player2Box.classList.add('player2-glow')
 					player1Box.classList.remove('player1-glow')
@@ -275,7 +279,7 @@ const ticTacToe = (() => {
 					player1Box.classList.remove('player1-glow')
 					player2Box.classList.add('player2-glow')
 				}
-			} else if (deuce === 9 && (xWin !== true || oWin !== true)) {
+			} else if (deuce.X + deuce.O === 9 && xWin !== true && oWin !== true) {
 				player1Box.classList.remove('player1-glow')
 				player2Box.classList.remove('player2-glow')
 			}
@@ -303,93 +307,72 @@ const ticTacToe = (() => {
 			const controller = new AbortController()
 			squareArray.forEach((e, i) => {
 				if (i > 0 && squareArray[i].textContent === '') {
-					squareArray[i].addEventListener(
-						'click',
-						() => {
-							const markerCount = markCount()
-							console.log(markerCount.marker.X, markerCount.marker.O)
-							console.log(player1.lastWinner, player2.lastWinner)
+					squareArray[i].addEventListener('click', () => {
+						const markerCount = markCount()
+
+						if (
+							(player1.lastWinner === 0 && player2.lastWinner === 0) ||
+							(player1.lastWinner === 0 && player2.lastWinner === 1)
+						) {
 							if (
-								(player1.lastWinner === 0 && player2.lastWinner === 0) ||
-								(player1.lastWinner === 0 && player2.lastWinner === 1)
+								markerCount.marker.X <= markerCount.marker.O &&
+								squareArray[i].textContent === ''
 							) {
-								if (
-									markerCount.marker.X <= markerCount.marker.O &&
-									squareArray[i].textContent === ''
-								) {
-									_gameBoard[i] = player1.getMark()
-									squareArray[i].classList.add('squareP1')
-									squareArray[i].classList.remove('squareP2')
-									turnPlayerGlow.glowFct(
-										markerCount.marker.X,
-										markerCount.marker.O
-									)
-								} else if (
-									markerCount.marker.X > markerCount.marker.O &&
-									squareArray[i].textContent === ''
-								) {
-									_gameBoard[i] = player2.getMark()
-									squareArray[i].classList.add('squareP2')
-									squareArray[i].classList.remove('squareP1')
-									turnPlayerGlow.glowFct(
-										markerCount.marker.X,
-										markerCount.marker.O
-									)
-								}
-							} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
-								if (
-									markerCount.marker.X >= markerCount.marker.O &&
-									squareArray[i].textContent === ''
-								) {
-									_gameBoard[i] = player2.getMark()
-									squareArray[i].classList.add('squareP2')
-									squareArray[i].classList.remove('squareP1')
-									turnPlayerGlow.glowFct(
-										markerCount.marker.X,
-										markerCount.marker.O
-									)
-									console.log('one')
-								} else if (
-									markerCount.marker.X < markerCount.marker.O &&
-									squareArray[i].textContent === ''
-								) {
-									_gameBoard[i] = player1.getMark()
-									squareArray[i].classList.add('squareP1')
-									squareArray[i].classList.remove('squareP2')
-									turnPlayerGlow.glowFct(
-										markerCount.marker.X,
-										markerCount.marker.O
-									)
-									console.log('two')
-								}
+								_gameBoard[i] = player1.getMark()
+								squareArray[i].classList.add('squareP1')
+								squareArray[i].classList.remove('squareP2')
+								turnPlayerGlow.glowFct(
+									markerCount.marker.X,
+									markerCount.marker.O
+								)
+							} else if (
+								markerCount.marker.X > markerCount.marker.O &&
+								squareArray[i].textContent === ''
+							) {
+								_gameBoard[i] = player2.getMark()
+								squareArray[i].classList.add('squareP2')
+								squareArray[i].classList.remove('squareP1')
+								turnPlayerGlow.glowFct(
+									markerCount.marker.X,
+									markerCount.marker.O
+								)
 							}
-							console.log(_gameBoard)
-
-							const allowWinner = winner()
-							allowWinner.bigWinner()
-							turnPlayerGlow.glowWinner(
-								allowWinner.winnerX,
-								allowWinner.winnerO,
-								allowWinner.deuce
-							)
-							/* if (
-								allowWinner.winnerX === true ||
-								allowWinner.winnerO === true
+						} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
+							if (
+								markerCount.marker.X >= markerCount.marker.O &&
+								squareArray[i].textContent === ''
 							) {
-								controller.abort()
-							} */
-							display.displayGameboard()
-						},
-						{
-							/* once: true, */
-							signal: controller.signal,
+								_gameBoard[i] = player2.getMark()
+								squareArray[i].classList.add('squareP2')
+								squareArray[i].classList.remove('squareP1')
+								turnPlayerGlow.glowFct(
+									markerCount.marker.X,
+									markerCount.marker.O
+								)
+							} else if (
+								markerCount.marker.X < markerCount.marker.O &&
+								squareArray[i].textContent === ''
+							) {
+								_gameBoard[i] = player1.getMark()
+								squareArray[i].classList.add('squareP1')
+								squareArray[i].classList.remove('squareP2')
+								turnPlayerGlow.glowFct(
+									markerCount.marker.X,
+									markerCount.marker.O
+								)
+							}
 						}
-					)
 
-					/* squareArray[i].addEventListener('click', () => {
-						
-						console.log(_gameBoard)
-					}) */
+						const allowWinner = winner()
+						allowWinner.bigWinner()
+						turnPlayerGlow.glowWinner(
+							allowWinner.winnerX,
+							allowWinner.winnerO,
+							allowWinner.deuce
+						)
+
+						display.displayGameboard()
+					})
 				}
 			})
 		}
