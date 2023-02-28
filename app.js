@@ -290,19 +290,18 @@ const ticTacToe = (() => {
 						'click',
 						() => {
 							const markerCount = markCount()
-							console.log(markerCount.marker.X, markerCount.marker.O)
 							if (
 								(player1.lastWinner === 0 && player2.lastWinner === 0) ||
-								(player1.lastWinner === 1 && player2.lastWinner === 0)
+								(player1.lastWinner === 0 && player2.lastWinner === 1)
 							) {
 								if (markerCount.marker.X <= markerCount.marker.O) {
 									_gameBoard[i] = player1.getMark()
 									squareArray[i].classList.add('squareP1')
+									squareArray[i].classList.remove('squareP2')
 									turnPlayerGlow.glowFct(
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
-									console.log(1)
 								} else if (markerCount.marker.X > markerCount.marker.O) {
 									_gameBoard[i] = player2.getMark()
 									squareArray[i].classList.add('squareP2')
@@ -311,9 +310,8 @@ const ticTacToe = (() => {
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
-									console.log(2)
 								}
-							} else if (player1.lastWinner === 0 && player2.lastWinner === 1) {
+							} else if (player1.lastWinner === 1 && player2.lastWinner === 0) {
 								if (markerCount.marker.X >= markerCount.marker.O) {
 									_gameBoard[i] = player2.getMark()
 									squareArray[i].classList.add('squareP2')
@@ -322,7 +320,6 @@ const ticTacToe = (() => {
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
-									console.log(3)
 								} else if (markerCount.marker.X < markerCount.marker.O) {
 									_gameBoard[i] = player1.getMark()
 									squareArray[i].classList.add('squareP1')
@@ -331,11 +328,8 @@ const ticTacToe = (() => {
 										markerCount.marker.X,
 										markerCount.marker.O
 									)
-									console.log(4)
 								}
 							}
-							/* console.log(markerCount.marker.X, markerCount.marker.O) */
-
 							const allowWinner = winner()
 							allowWinner.bigWinner()
 							if (
@@ -365,7 +359,6 @@ const ticTacToe = (() => {
 			const restartFct = () => {
 				const { lastWinner } = winner()
 				lastWinner()
-				/* console.log(player1.lastWinner, player2.lastWinner) */
 				_gameBoard = [null, '', '', '', '', '', '', '', '', '']
 				display.displayGameboard()
 				displayResultBox.classList.remove('display-result-content')
@@ -418,11 +411,10 @@ const ticTacToe = (() => {
 		display.displayMark()
 
 		turnAndWinner.turn()
-		turnAndWinner.newRound()
 		turnAndWinner.reinitialize()
 	}
 
-	return { game, player1, player2, _gameBoard }
+	return { game }
 })()
 
 ticTacToe.game()
