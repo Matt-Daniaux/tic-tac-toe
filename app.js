@@ -58,7 +58,15 @@ const ticTacToe = (() => {
 			}
 		}
 
-		const displayChangeName = () => {
+		const displayScore = () => {
+			const scoreP1 = document.querySelector('.scoreP1')
+			const scoreP2 = document.querySelector('.scoreP2')
+
+			scoreP1.textContent = player1.score
+			scoreP2.textContent = player2.score
+		}
+
+		const displayChangeName = (() => {
 			const playerNameBtn = document.querySelector('.change-name')
 			const blurDiv = document.querySelector('.blur-background')
 			const formChangePlayer = document.querySelector('.form-Change-Player')
@@ -82,23 +90,15 @@ const ticTacToe = (() => {
 				blurDiv.classList.remove('display-contents')
 				formChangePlayer.classList.remove('display-contents')
 			})
-		}
+		})()
 
-		const displayScore = () => {
-			const scoreP1 = document.querySelector('.scoreP1')
-			const scoreP2 = document.querySelector('.scoreP2')
-
-			scoreP1.textContent = player1.score
-			scoreP2.textContent = player2.score
-		}
-
-		const displayMark = () => {
+		const displayMark = (() => {
 			const markP1 = document.querySelector('.markP1')
 			const markP2 = document.querySelector('.markP2')
 
 			markP1.textContent = `Mark: ${player1.getMark()}`
 			markP2.textContent = `Mark: ${player2.getMark()}`
-		}
+		})()
 
 		const displayResultMessage = (() => {
 			const resultText = document.querySelector('.result-text')
@@ -120,9 +120,7 @@ const ticTacToe = (() => {
 
 		return {
 			displayGameboard,
-			displayChangeName,
 			displayScore,
-			displayMark,
 			displayResultMessage,
 		}
 	})()
@@ -164,6 +162,7 @@ const ticTacToe = (() => {
 					display.displayResultMessage.winnerP1()
 					player2Box.classList.remove('player2-glow')
 					player1Box.classList.add('player1-glow')
+					// 2 - 2 value is use to stop board from being click
 					player1.lastWinner = 2
 					player2.lastWinner = 2
 				} else {
@@ -199,8 +198,6 @@ const ticTacToe = (() => {
 				winnerX !== true
 			) {
 				display.displayResultMessage.deuce()
-				/* player1.lastWinner = 2
-				player2.lastWinner = 2 */
 			}
 		}
 
@@ -211,10 +208,7 @@ const ticTacToe = (() => {
 			} else if (winnerO === true) {
 				player2.lastWinner = 1
 				player1.lastWinner = 0
-			} /* else if (deuce.X + deuce.O === 9 &&
-				winnerO !== true && winnerX !== true) {
-				if()
-			} */
+			}
 		}
 
 		return { winnerX, winnerO, deuce, bigWinner, lastWinner }
@@ -309,7 +303,6 @@ const ticTacToe = (() => {
 				if (i > 0 && squareArray[i].textContent === '') {
 					squareArray[i].addEventListener('click', () => {
 						const markerCount = markCount()
-
 						if (
 							(player1.lastWinner === 0 && player2.lastWinner === 0) ||
 							(player1.lastWinner === 0 && player2.lastWinner === 1)
@@ -362,7 +355,7 @@ const ticTacToe = (() => {
 								)
 							}
 						}
-
+						// Need to receive value of winnerX/O/Deuce after every click
 						const allowWinner = winner()
 						allowWinner.bigWinner()
 						turnPlayerGlow.glowWinner(
@@ -370,7 +363,6 @@ const ticTacToe = (() => {
 							allowWinner.winnerO,
 							allowWinner.deuce
 						)
-
 						display.displayGameboard()
 					})
 				}
@@ -381,6 +373,7 @@ const ticTacToe = (() => {
 			const restartBtn = document.querySelector('.restart-btn')
 
 			const restartFct = () => {
+				// Need so that value of lastWinner of each player is put back to playable value
 				const { lastWinner } = winner()
 				lastWinner()
 				_gameBoard = [null, '', '', '', '', '', '', '', '', '']
@@ -392,7 +385,6 @@ const ticTacToe = (() => {
 						squareArray[i].classList.remove('squareP2')
 					}
 				})
-				/* turn() */
 			}
 
 			const restartGame = (() => {
@@ -434,16 +426,10 @@ const ticTacToe = (() => {
 		return { turn, newRound, reinitialize }
 	})()
 
-	const game = () => {
+	const game = (() => {
 		display.displayGameboard()
-		display.displayChangeName()
 		display.displayScore()
-		display.displayMark()
-
 		turnAndWinner.turn()
-	}
-
-	return { game }
+	})()
 })()
 
-ticTacToe.game()
